@@ -4,7 +4,7 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="The record of RCCF&#39;s reproduction, DeepLearning Multi-modal">
+    <meta name="keywords" content="Relationship-version3.1, DeepLearning Multi-modal">
     <meta name="description" content="Harbing Institute of Technology | DeepLearning | Multi-modal">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
@@ -16,7 +16,7 @@
     <!-- Global site tag (gtag.js) - Google Analytics -->
 
 
-    <title>The record of RCCF&#39;s reproduction | Duck neck</title>
+    <title>Relationship-version3.1 | Duck neck</title>
     <link rel="icon" type="image/png" href="/fav.png">
 
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
@@ -266,12 +266,12 @@
 
 
 
-<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/21.jpg')">
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/13.jpg')">
     <div class="container" style="right: 0px;left: 0px;">
         <div class="row">
             <div class="col s12 m12 l12">
                 <div class="brand">
-                    <h1 class="description center-align post-title">The record of RCCF&#39;s reproduction</h1>
+                    <h1 class="description center-align post-title">Relationship-version3.1</h1>
                 </div>
             </div>
         </div>
@@ -392,10 +392,6 @@
                                 <span class="chip bg-color">one-stage REC</span>
                             </a>
                         
-                            <a href="/tags/RCCF/">
-                                <span class="chip bg-color">RCCF</span>
-                            </a>
-                        
                     </div>
                     
                 </div>
@@ -417,7 +413,7 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-minus fa-fw"></i>Publish Date:&nbsp;&nbsp;
-                    2020-11-12
+                    2020-11-19
                 </div>
                 
 
@@ -431,14 +427,14 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>Word Count:&nbsp;&nbsp;
-                    154
+                    1.1k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>Read Times:&nbsp;&nbsp;
-                    1 Min
+                    3 Min
                 </div>
                 
 
@@ -453,15 +449,25 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <h2 id="Introduction"><a href="#Introduction" class="headerlink" title="Introduction"></a>Introduction</h2><p>Recently, I have to reproduce RCCF first due to my graduation project. A few months ago,  my senior schoolmates had completed the code part. However, neither the performance nor the speed of model are to my satisfactory. Thus, I want to reproduce RCCF again by myself so that I can improve it effectively !</p>
-<h3 id="Model-part"><a href="#Model-part" class="headerlink" title="Model part"></a>Model part</h3><p>There are mainly three parts to be taken into my consideration, including backbone, expression encoder, heatmap.</p>
-<ul>
-<li>backbone: Like yolov3, we use darknet53 as RCCF’s backbone and use last three feature maps.</li>
-<li>expression encoder: the language encoder of RealGin looks appropriate for RCCF, so we adopt it.</li>
-<li>heatmap: As mentioned in paper, we adopt the same method as Centernet.</li>
-</ul>
-<h3 id="Dataset-part"><a href="#Dataset-part" class="headerlink" title="Dataset part"></a>Dataset part</h3><p>The most important part is the generation of heatmap, we should do the same thing as Centernet.</p>
-<h3 id="Logging-part"><a href="#Logging-part" class="headerlink" title="Logging part"></a>Logging part</h3><p>Referring it from realGin’s source code maybe a good choice for us. I remember the log of realGin is very friendly.</p>
+                <h3 id="概况"><a href="#概况" class="headerlink" title="概况"></a>概况</h3><p>​        经过五天的努力，终于基本复现了RCCF的代码，并在原文的基础之上添加了Global position；虽然改进后的实验还没有完全跑完，但从前几个epoch来看最后结果应该不会太差。原想着刚肝完一周的代码，放松两天。谁曾想导师午夜十二点开始了push，没办法，只能继续接下来的任务了/(ㄒoㄒ)/~~。</p>
+<h3 id="出发点"><a href="#出发点" class="headerlink" title="出发点"></a>出发点</h3><p>​        由于RCCF是one-stage的方法，所以我们所有的改进都是围绕one-stage来进行的。one-stage相较于two-stage，成也速度，败也速度；为了提升速度，中间的reasoning往往十分简单，很难做到像人类一样的推理过程。对应到深度学习上的知识，就是对于复杂的问题，模型只能学到一个还不错的解，但不会特别好，即泛化能力比较差。为了解决这个问题，我们需要对reasoning过程进行约束，这就相当于在我们刷题时，手中不仅有最终答案，还有中间步骤。如此一来，我们再遇到新的问题时，通过一定步骤解题总会比一眼看出答案的正确率更高</p>
+<h3 id="总体方案"><a href="#总体方案" class="headerlink" title="总体方案"></a>总体方案</h3><p>​        那么上面提到的解题步骤应该是什么呢？我们首先想到的应该是句子中涉及到哪些物体，把这些物体与句子中的名词对应起来，并利用这些物体和主语的关系来对最终主体的heatmap进行约束。</p>
+<h4 id="句子中名词提取及coco-类别对应"><a href="#句子中名词提取及coco-类别对应" class="headerlink" title="句子中名词提取及coco 类别对应"></a>句子中名词提取及coco 类别对应</h4><p>​        名词的获得过程应该是比较简单的，可以参考spcay的tokenization方法，这里不再详述。</p>
+<p>​        参考Yolov9000的做法，利用WordNet来获得句中名词到根的路径，寻找是否有与coco类别一致的名词。从具体实现来看，有几十万条句子，涉及到约上百万条名词，路径搜索的效率显然太低了；并且，句子中有的物体可能涉及到coco类别的祖先节点，如果采用路径搜索的话需要进行双向搜索，显然太费时间。</p>
+<p>​        所以，我们可以将WordNet中的WordTree转化为一个字典，字典的key为WordTree的所有节点，value是一个由coco类别组成的list；当然，这个list可以为空，同时也说明某个名词可能对应多个物体，如名词object，基本对应所有物体。</p>
+<h4 id="object-heatmap-的计算及对应Ground-Truth的获取"><a href="#object-heatmap-的计算及对应Ground-Truth的获取" class="headerlink" title="object heatmap 的计算及对应Ground Truth的获取"></a>object heatmap 的计算及对应Ground Truth的获取</h4><p>​        针对每个object，设该object在句子中的索引为idx，其对应的特征向量应该为bi-LSTM的output中第idx个向量。然后经过与subject相同的方式，获得最终的heatmap。</p>
+<p>​        不同于subject，我们之前提到，object在数据集中是没有GT的。所以，为了对object的heatmap的生成过程进行约束，我们需要自己制作对应的数据集。目前来看，我想到了两种方案：</p>
+<ol>
+<li>在步骤1之后，我们获得了名词对应的coco类别，那么，接下来，我们便可以利用训练好的CenterNet来处理图片，从而获得名词对应的heatmap；如果对应的coco类别数大于1，那么我们直接取平均数即可；在对object的heatmap进行约束时，我们可以采用KL divergence，参考SIRI</li>
+<li>除了方法1之外，我们还可以像subject一样，使用focal loss和reg loss（optional）来对heatmap进行约束；设object对应coco类别为c，那么我们直接寻找图片annotation中类别c的所有bbox，之后的后处理和loss过程参考CenterNet（事情变得麻烦了）</li>
+</ol>
+<h4 id="修改代码"><a href="#修改代码" class="headerlink" title="修改代码"></a>修改代码</h4><p>​        首先是针对获得各个object对应向量这个步骤，目前我有三种想法：</p>
+<ol>
+<li>就像上面所提到的，直接获得bi-LSTM的output中第idx个向量</li>
+<li>获得object的noun phase对应范围内的几个vector，并取平均值</li>
+<li>直接把这些object 对应的noun phase放入到bi-LSTM中，处理得到最终向量；但这样一来会忽略与subject的关系</li>
+</ol>
+<p>​        然后是针对代码的简洁性和并发性，每个batch中不同句子的object个数是不同的，所以每条句子最终获得的vector个数（object个数+1）也是不同的。为了方便后面获得filter和最终的heatmap，我们需要进行padding操作，同时记录下mask，便于之后object heatmap loss的计算</p>
 
             </div>
             <hr/>
@@ -487,7 +493,7 @@
                     </i>
                 </span>
                 <span class="reprint-info">
-                    <a href="https://1170300521.github.io/2020/11/13/The-record-of-RCCF-s-reproduction/">https://1170300521.github.io/2020/11/13/The-record-of-RCCF-s-reproduction/</a>
+                    <a href="https://1170300521.github.io/2020/11/20/Relationship-version3-1/">https://1170300521.github.io/2020/11/20/Relationship-version3-1/</a>
                 </span>
             </div>
             <div class="reprint__notice">
@@ -529,10 +535,6 @@
                                     <span class="chip bg-color">one-stage REC</span>
                                 </a>
                             
-                                <a href="/tags/RCCF/">
-                                    <span class="chip bg-color">RCCF</span>
-                                </a>
-                            
                         </div>
                     
                 </div>
@@ -572,9 +574,10 @@
 <article id="prenext-posts" class="prev-next articles">
     <div class="row article-row">
         
-        <div class="article col s12 m6" data-aos="fade-up">
+        <div class="article col s12 m6" data-aos="fade-up" data-aos="fade-up">
             <div class="article-badge left-badge text-color">
-                <i class="fas fa-chevron-left"></i>&nbsp;Previous</div>
+                <i class="far fa-dot-circle"></i>&nbsp;Current
+            </div>
             <div class="card">
                 <a href="/2020/11/20/Relationship-version3-1/">
                     <div class="card-image">
@@ -592,9 +595,9 @@
                         
                     </div>
                     <div class="publish-info">
-                        <span class="publish-date">
-                            <i class="far fa-clock fa-fw icon-date"></i>2020-11-19
-                        </span>
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2020-11-19
+                            </span>
                         <span class="publish-author">
                             
                             <i class="fas fa-bookmark fa-fw icon-category"></i>
@@ -607,6 +610,7 @@
                         </span>
                     </div>
                 </div>
+
                 
                 <div class="card-action article-tags">
                     
@@ -622,7 +626,7 @@
         
         <div class="article col s12 m6" data-aos="fade-up">
             <div class="article-badge right-badge text-color">
-                Current&nbsp;<i class="far fa-dot-circle"></i>
+                Next&nbsp;<i class="fas fa-chevron-right"></i>
             </div>
             <div class="card">
                 <a href="/2020/11/13/The-record-of-RCCF-s-reproduction/">
@@ -656,7 +660,6 @@
                         </span>
                     </div>
                 </div>
-
                 
                 <div class="card-action article-tags">
                     
