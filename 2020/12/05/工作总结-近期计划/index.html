@@ -386,12 +386,33 @@
             <div class="row tag-cate">
                 <div class="col s7">
                     
-                          <div class="article-tag">
-                            <span class="chip bg-color">No tag</span>
-                          </div>
+                    <div class="article-tag">
+                        
+                            <a href="/tags/one-stage-REC/">
+                                <span class="chip bg-color">one-stage REC</span>
+                            </a>
+                        
+                            <a href="/tags/RealGin/">
+                                <span class="chip bg-color">RealGin</span>
+                            </a>
+                        
+                    </div>
                     
                 </div>
                 <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%A1%88/" class="post-category">
+                                实验方案
+                            </a>
+                        
+                            <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%A1%88/%E9%98%B6%E6%AE%B5%E6%80%BB%E7%BB%93/" class="post-category">
+                                阶段总结
+                            </a>
+                        
+                    </div>
                     
                 </div>
             </div>
@@ -407,21 +428,21 @@
                 
                 <div class="post-date info-break-policy">
                     <i class="far fa-calendar-check fa-fw"></i>Update Date:&nbsp;&nbsp;
-                    2020-12-04
+                    2020-12-07
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-file-word fa-fw"></i>Word Count:&nbsp;&nbsp;
-                    0
+                    1.7k
                 </div>
                 
 
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>Read Times:&nbsp;&nbsp;
-                    1 Min
+                    5 Min
                 </div>
                 
 
@@ -436,7 +457,32 @@
         <hr class="clearfix">
         <div class="card-content article-card-content">
             <div id="articleContent">
-                <p><img src="G:\CS\githubio\source_posts\logo.png" alt="first image"></p>
+                <h2 id="一些闲扯的话"><a href="#一些闲扯的话" class="headerlink" title="一些闲扯的话"></a>一些闲扯的话</h2><p>前前后后忙了一周，毕设开题终于结束了。虽然毕设的题目都是自己平时一直在做的东西，可真要写到报告上，做成PPT给别人讲，对于我这种不善言谈（bushi）的人是相当困难的一件事。</p>
+<p>我对写报告和答辩这种事情十分厌恶的。与其说是厌恶，倒不如说是对自己演讲能力的不自信。所以，今天能顺利通过毕设开题答辩，一方面要感谢左老师和伯文师兄细心的指导，另一方面要感谢二哥答辩之前的鼓励。</p>
+<p>当然，这次的答辩对我来说也是对之前思路的总结和未来方向的展望，让我有机会跳出代码的细节，从一个更加全面的视角看待问题。而且，虽然听起来在答辩的前几天才开始准备有点仓促，但我个人感觉这周过得还是挺轻松的。综合以上因素，我对之前模型表现不好的原因再次进行分析，又有了新的解决问题的思路，所以记下这篇博客，以便之后回忆。</p>
+<h3 id="继续复现RealGin"><a href="#继续复现RealGin" class="headerlink" title="继续复现RealGin"></a>继续复现RealGin</h3><p>虽然说之后的总体方案都是基于RCCF框架的，可它的baseline表现实在是太差了，只有不到50%的准确率。因此，还是需要考虑老师两手准备的建议：把主要精力放在RCCF的关系改进上面，毕竟这是更有意义的工作；同时，为了保证顺利毕业，还是要做出一些能拿的上台面的东西，在原模型的基础之上增加或替换性能更好的模块来提升模型性能。由于RealGin更高的baseline，所以保证毕业的方案中的框架非RealGin莫属。</p>
+<p>由于之前的工作都是在RealGin上进行的，所以针对RealGin的复现已经有了一定的基础：</p>
+<ul>
+<li>在flickr 30k数据集上已经达到了论文的性能，因为关于该数据集的模型代码是release的。但让人迷惑的一点是，Refcocog与它使用的模型是相同的，但在Refcocog上却达不到与论文中接近的性能。</li>
+<li>参考论文中在Refcoco及Refcoco+等数据集上所使用模型的描述，我自己复现了该部分模型的代码，但与论文中大概差了15%左右的正确率。</li>
+</ul>
+<p>经过了紧（放）张（松）的一周，我又重新阅读了论文并思考了复现的细节。RealGin中不仅描述了我所复现的模型，还自主设计了baseline，在Refcoco val集上能达到70%左右的正确率。虽然仅参考作者对RealGin模型的描述会认为最终模型的实现与这个baseline无关。但几个细节的地方还是引起了我的注意：</p>
+<ul>
+<li>首先是作者Gen Luo发表的另一篇论文<a target="_blank" rel="noopener" href="https://arxiv.org/abs/2003.08813">MCN</a>，这篇论文被发表在CVPR2020上，所以作者也公布了完整的代码。经过仔细阅读论文及代码后，我发现作者在模型的实现中涉及到了跨模态的融合，且计算方式和RealGin中Baseline跨模态融合的计算方式相同。既然这种方式能够提升模型性能，那么作者为何不加到RealGin中呢？</li>
+<li>带着第一点的疑问，我又仔细的阅读了论文中对模型地描述；发现在Experiment Setting部分有这样一句话“ In terms of multi-modal fusion, the dimension d in Eq.1 is 1024”，这里的Eq.1指的是跨模态融合的计算方程。而在这句话的前后都是对模型各个参数的表示，完全没有涉及到baseline描述</li>
+<li>以上也解答了我一直以来的疑问，仅凭语义特征预测的三个常数，怎么可能做到对跨模态特征的深度融合？！特征融合的工作还是baseline的模块做的。至于这三个常数，我认为是作者参考<a target="_blank" rel="noopener" href="https://arxiv.org/abs/1801.08186">MattNet</a>中三种模块的设置，根据问题中各类信息量的不同自适应的选择不同的特征，这也是Adaptive Feature Selection (AFS)名字的由来。</li>
+</ul>
+<p>通过以上的推理，我认为自己复现模型中未考虑到的一点是：RealGin模型不是直接从Darknet中添加AFS和GARAN模块获得的，而是在Baseline上添加获得的。因此，我接下来应该首先复现作者的Baseline（已经在运行，且有好的趋势），并使其尽量接近论文数据以减小与真实模型差距；并在此基础上，添加AFS和GARAN模块，重新复现RealGin</p>
+<h3 id="思考RealGin过程中对RCCF方案的一些启发"><a href="#思考RealGin过程中对RCCF方案的一些启发" class="headerlink" title="思考RealGin过程中对RCCF方案的一些启发"></a>思考RealGin过程中对RCCF方案的一些启发</h3><h4 id="RealGin模型Baseline与RCCF模型的一些对比"><a href="#RealGin模型Baseline与RCCF模型的一些对比" class="headerlink" title="RealGin模型Baseline与RCCF模型的一些对比"></a>RealGin模型Baseline与RCCF模型的一些对比</h4><p>从RealGin模型Baseline（RealGinBase）的功能效果来看，RCCF中的correlation filter不过是另一种方式的跨模态特征融合，且较RealGinBase融合程度基本相同。除此之外，我们自己复现RCCF时精度也就是50%左右（虽然使用了预训练的Yolov3模型，但基本无影响，RCCF基于CenterNet）；而RealGinBase在不使用预训练Yolov3时正确率也在50%左右。所以，我可以确信RCCF在不使用额外数据集时性能的上限也就是50%。</p>
+<h4 id="对比过程中获得的一些启发"><a href="#对比过程中获得的一些启发" class="headerlink" title="对比过程中获得的一些启发"></a>对比过程中获得的一些启发</h4><ul>
+<li>首先是预训练模型的使用，在不使用预训练模型的情况下，简单的端到端的训练很难达到满意的效果；而且，根据RealGin论文中所说，visual backbone这一部分的参数需要被冻结，目前正在RealGinBase上验证这一想法。</li>
+<li>其次，RCCF本身和RealGinBase的模型基本相同，所以很难让人相信如此简单的模型可以达到80%左右的正确率。</li>
+</ul>
+<h3 id="RCCF结果较差原因分析及改进"><a href="#RCCF结果较差原因分析及改进" class="headerlink" title="RCCF结果较差原因分析及改进"></a>RCCF结果较差原因分析及改进</h3><ol>
+<li>在利用WordNet提取名词对应的类别时，仅仅使用近义词的方式是远远不够的；还是需要参考Yolo9000的源码，利用WordTree来回溯名词对应的类别</li>
+<li>在学习object对应的heatmap时，选用heatmap的效果并不好。这一方面是Ground Truth的质量较差；另一方面，KL divergence本身对heatmap的约束效果也并不好，莫不如直接采用和RCCF相同的方式（但只使用Focal loss部分）进行训练。</li>
+<li>还有就是从可视化的结果中，可以发现，选用不同位置的word vectors对最终的heatmap影响不大，这很有可能是语言模型的表达能力问题。还需要后续继续参考改进，可以参考MCN使用TextAtt模块</li>
+</ol>
 
             </div>
             <hr/>
@@ -499,7 +545,15 @@
                 <div class="post-meta__tag-list" style="display: inline-block;">
                     
                         <div class="article-tag">
-                            <span class="chip bg-color">No tag</span>
+                            
+                                <a href="/tags/one-stage-REC/">
+                                    <span class="chip bg-color">one-stage REC</span>
+                                </a>
+                            
+                                <a href="/tags/RealGin/">
+                                    <span class="chip bg-color">RealGin</span>
+                                </a>
+                            
                         </div>
                     
                 </div>
@@ -565,13 +619,33 @@
                             </span>
                         <span class="publish-author">
                             
-                            <i class="fas fa-user fa-fw"></i>
-                            Yabo Zhang
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%A1%88/" class="post-category">
+                                    实验方案
+                                </a>
+                            
+                            <a href="/categories/%E5%AE%9E%E9%AA%8C%E6%96%B9%E6%A1%88/%E9%98%B6%E6%AE%B5%E6%80%BB%E7%BB%93/" class="post-category">
+                                    阶段总结
+                                </a>
+                            
                             
                         </span>
                     </div>
                 </div>
 
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/one-stage-REC/">
+                        <span class="chip bg-color">one-stage REC</span>
+                    </a>
+                    
+                    <a href="/tags/RealGin/">
+                        <span class="chip bg-color">RealGin</span>
+                    </a>
+                    
+                </div>
                 
             </div>
         </div>
@@ -861,7 +935,7 @@ code[class*="language-"], pre[class*="language-"] { white-space: pre !important;
             <br>
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">1.3k</span>&nbsp;字
+                class="white-color">3k</span>&nbsp;字
             
             
             
